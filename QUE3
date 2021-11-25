@@ -1,0 +1,38 @@
+%%writefile que3.cu
+#include<stdio.h>
+#include<cuda.h>
+
+_global_ void arradd(int *x,int *z){
+	int index=blockIdx.x;
+  z[index]+=x[index];
+  printf("sum= %d",z[index]);
+}
+
+int main(){
+
+	int n=1000;
+  int a[1000];
+  for(int k=1;k<1001;k++)
+    a[k]=k;
+  
+	int c[n];
+	int *x,*z;
+	int i;
+	
+	cudaMalloc((void**)&x,n*sizeof(int));
+
+	cudaMalloc((void**)&z,n*sizeof(int));
+	cudaMemcpy(x,a,n*sizeof(int),cudaMemcpyHostToDevice);
+  arradd<<<n,1>>>(x,z);
+   
+    cudaMemcpy(c,z,n*sizeof(int),cudaMemcpyDeviceToHost);
+    printf("\nResultant vector:");
+    for(i=0;i<n;i++){
+    	printf("%d ",c[i]);
+    }
+    printf("\n");
+    cudaFree(x);
+    cudaFree(z);
+    return 0;
+
+}
